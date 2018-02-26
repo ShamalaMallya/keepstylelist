@@ -27,11 +27,14 @@
   to { transform: rotate(360deg); }
 }
 .taskList{
- list-style: none;
- padding:3px;
- text-align: center;
- border:2px solid white;
+ border:1px solid white;
  max-width: 40%;
+ box-shadow: 3px 3px whitesmoke;
+}
+.taskList > ul {
+  list-style: none;
+  padding:3px;
+  margin:10px;
 }
 .line-through{
  text-decoration-line: line-through;
@@ -47,5 +50,11 @@
 .itemList{
   background-color:paleturquoise;
   padding:10px;
+}
+.horizontalLine{
+  border:1px solid whitesmoke;
+}
+.hideTasks{
+  display: none;
 }
 

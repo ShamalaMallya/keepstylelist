@@ -2,11 +2,20 @@ import React, { Component } from "react";
 import logo from "./logo.svg";
 import "./CSS/App.css";
 
+var idGenerator = (function() {
+  var counter = 0;
+  return function() {
+    return (counter += 1);
+  };
+})();
+
 class TaskObject {
   constructor(taskName, isTaskCompleted) {
     this.taskName = taskName;
     this.isTaskCompleted = isTaskCompleted;
+    this.taskId = idGenerator();
   }
+
   onTaskUpdate() {
     this.isTaskCompleted = !this.isTaskCompleted;
   }
@@ -32,8 +41,9 @@ class ItemList extends Component {
     this.addTask = this.addTask.bind(this);
     this.state = { taskList: [] };
     this.onTaskComplete = this.onTaskComplete.bind(this);
-    this.everyTask = this.everyTask.bind(this);    
+    this.everyTask = this.everyTask.bind(this);
     this.showTaskCount = this.showTaskCount.bind(this);
+    //this.showTask  = this.showTask.bind(this);
   }
   addTask(event) {
     if (event.key === "Enter") {
@@ -49,30 +59,39 @@ class ItemList extends Component {
       <Item
         taskName={task.taskName}
         isCompleted={task.isTaskCompleted}
-        key={index}
-        index={index}
+        key={task.taskId}
+        index={task.taskId}
         onTaskComplete={this.onTaskComplete}
       />
     );
   }
   onTaskComplete(event, index) {
     var tasks = this.state.taskList;
-    tasks[index].onTaskUpdate();
+    tasks.filter(task => task.taskId === index)[0].onTaskUpdate();
     this.setState({ taskList: tasks });
   }
-  showTaskCount(){
-    let compeletedTaskCount = this.state.taskList.filter((task)=> task.isTaskCompleted).length;
+  showTaskCount() {
+    let compeletedTaskCount = this.state.taskList.filter(
+      task => task.isTaskCompleted
+    ).length;
     console.log(compeletedTaskCount);
-    if(compeletedTaskCount  > 0 || this.state.taskList.length !== 0)
-    {
+    if (compeletedTaskCount > 0 || this.state.taskList.length !== 0) {
       return <h4>Tasks completed : {compeletedTaskCount}</h4>;
-    }
-    else{
+    } else {
       return;
     }
   }
+  showTask(taskList) {
+    return taskList.length > 0 ? "display:block" : "display:none";
+  }
   render() {
-    
+    let compeletedTask = this.state.taskList.filter(
+      task => task.isTaskCompleted
+    );
+    let pendingTask = this.state.taskList.filter(task => !task.isTaskCompleted);
+
+    let showAllTasks =
+      this.state.taskList.length > 0 ? "taskList" : "hideTasks";
     return (
       <div className="itemList">
         <input
@@ -80,8 +99,12 @@ class ItemList extends Component {
           placeholder="Task Name"
           onKeyPress={this.addTask}
         />
-        {this.showTaskCount()}
-        <ul className="taskList">{this.state.taskList.map(this.everyTask)}</ul>
+        <h4>Tasks completed : {compeletedTask.length}</h4>
+        <div className={showAllTasks}>
+          <ul>{pendingTask.map(this.everyTask)}</ul>
+          <hr className="horizontalLine" />
+          <ul>{compeletedTask.map(this.everyTask)}</ul>
+        </div>
       </div>
     );
   }
@@ -97,6 +120,7 @@ class Item extends Component {
   }
   render() {
     let labelStyle = this.props.isCompleted ? "line-through" : "";
+
     return (
       <React.Fragment>
         <li className="task" key={this.props.index} id={this.props.index}>
