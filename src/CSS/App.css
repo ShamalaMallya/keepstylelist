@@ -1,0 +1,51 @@
+.App {
+  text-align: center;
+}
+
+.App-logo {
+  animation: App-logo-spin infinite 20s linear;
+  height: 80px;
+}
+
+.App-header {
+  background-color: #222;
+  height: 150px;
+  padding: 20px;
+  color: white;
+}
+
+.App-title {
+  font-size: 1.5em;
+}
+
+.App-intro {
+  font-size: large;
+}
+
+@keyframes App-logo-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+.taskList{
+ list-style: none;
+ padding:3px;
+ text-align: center;
+ border:2px solid white;
+ max-width: 40%;
+}
+.line-through{
+ text-decoration-line: line-through;
+ color:grey;
+}
+.task :focus {
+ outline: 0;
+}
+.task{
+  text-align: left;
+  
+}
+.itemList{
+  background-color:paleturquoise;
+  padding:10px;
+}
+
