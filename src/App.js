@@ -90,8 +90,6 @@ class ItemList extends Component {
     );
     let pendingTask = this.state.taskList.filter(task => !task.isTaskCompleted);
 
-    let showAllTasks =
-      this.state.taskList.length > 0 ? "taskList" : "hideTasks";
     return (
       <div className="itemList">
         <input
@@ -99,12 +97,22 @@ class ItemList extends Component {
           placeholder="Task Name"
           onKeyPress={this.addTask}
         />
-        <h4>Tasks completed : {compeletedTask.length}</h4>
-        <div className={showAllTasks}>
-          <ul>{pendingTask.map(this.everyTask)}</ul>
-          <hr className="horizontalLine" />
-          <ul>{compeletedTask.map(this.everyTask)}</ul>
-        </div>
+        {this.state.taskList.length > 0 && (
+          <div>
+            <h4>Tasks completed : {compeletedTask.length}</h4>
+
+            <div className="taskList">
+              {pendingTask.length > 0 && (
+                <ul>{pendingTask.map(this.everyTask)}</ul>
+              )}
+              {pendingTask.length > 0 &&
+                compeletedTask.length > 0 && <hr className="horizontalLine" />}
+              {compeletedTask.length > 0 && (
+                <ul>{compeletedTask.map(this.everyTask)}</ul>
+              )}
+            </div>
+          </div>
+        )}
       </div>
     );
   }
