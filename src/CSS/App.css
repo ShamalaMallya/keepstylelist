@@ -27,9 +27,9 @@
   to { transform: rotate(360deg); }
 }
 .taskList{
- border:1px solid white;
- max-width: 40%;
- box-shadow: 3px 3px whitesmoke;
+ 
+ max-width: 50%;
+ 
 }
 .taskList > ul {
   list-style: none;
@@ -48,6 +48,10 @@
   
 }
 .itemList{
+  border:1px solid white; 
+  box-shadow: 3px 3px whitesmoke;
+}
+.taskBoard{
   background-color:paleturquoise;
   padding:10px;
 }
@@ -57,4 +61,9 @@
 .hideTasks{
   display: none;
 }
-
+.taskEntry{
+  margin:10px;
+}
+.actionButton{
+  margin:10px;
+}
