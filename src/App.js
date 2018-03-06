@@ -15,10 +15,17 @@ class TaskObject {
     this.isTaskCompleted = isTaskCompleted;
     this.taskId = idGenerator();
   }
-  updateTask() {
-    this.isTaskCompleted = !this.isTaskCompleted;
-  }
 }
+  function updateTask(task) {
+    if ("isTaskCompleted" in task) {
+      task.isTaskCompleted = !task.isTaskCompleted;
+    }
+  }
+  // class TaskObjectBehavior{
+//   updateTask() {
+//     this.isTaskCompleted = !this.isTaskCompleted;
+//   }
+// }
 // #endregion
 Array.prototype.deepCopy = function() {
   return JSON.parse(JSON.stringify(this));
@@ -67,6 +74,11 @@ class TaskBoard extends Component {
     this.setActionHistory = this.setActionHistory.bind(this);
   }
   setActionHistory() {
+    
+    if(this.state.currentActionIndex < this.state.actionHistory.length-1){
+      var prevHistoryOverride = this.state.actionHistory.length - this.state.currentActionIndex-1;
+      this.state.actionHistory.splice(this.state.currentActionIndex,prevHistoryOverride);
+    }
     this.state.actionHistory.push(
       new ActionState(this.state.completedTaskList, this.state.pendingTaskList)
     );
@@ -95,7 +107,7 @@ class TaskBoard extends Component {
       1
     )[0];
 
-    completedTask.updateTask();
+    updateTask(completedTask);
     this.state.completedTaskList.push(completedTask);
 
     var currentIndex = this.setActionHistory();
@@ -114,7 +126,7 @@ class TaskBoard extends Component {
       pendingTaskIndex,
       1
     )[0];
-    pendingTask.updateTask();
+    updateTask(pendingTask);
     this.state.pendingTaskList.push(pendingTask);
     var currentIndex = this.setActionHistory();
     this.setState({
@@ -138,20 +150,28 @@ class TaskBoard extends Component {
     }
   }
   redoActionHistory() {
-    console.log("REDO");
+    if(this.state.currentActionIndex < this.state.actionHistory.length-1){
+      let newIndex = this.state.currentActionIndex + 1;
+      var futureActionHistory = this.state.actionHistory[newIndex].deepCopy();
+
+      this.setState({
+        completedTaskList: futureActionHistory.completedTask.slice(0),
+        pendingTaskList: futureActionHistory.pendingTask.slice(0),
+        currentActionIndex: newIndex
+      });
+    }
   }
   render() {
+    var isRedoEnabled = this.state.currentActionIndex >= 0 && this.state.currentActionIndex < this.state.actionHistory.length-1;
+    var isUndoEnabled = this.state.currentActionIndex > 0;
     return (
       <div className="taskBoard">
         <TaskInput addToPendingTask={this.addToPendingTask} />
         <div>
-          <ActionButton updateActionHistory={this.undoActionHistory}>
-            {
-              //isEnabled={this.state.currentActionIndex > 0}
-            }
+          <ActionButton updateActionHistory={this.undoActionHistory} isEnabled={isUndoEnabled}>
             Undo
           </ActionButton>
-          <ActionButton updateActionHistory={this.redoActionHistory}>
+          <ActionButton updateActionHistory={this.redoActionHistory} isEnabled={isRedoEnabled}>
             Redo
           </ActionButton>
         </div>
@@ -215,7 +235,7 @@ class Item extends Component {
     this.handleCheckChange = this.handleCheckChange.bind(this);
   }
   handleCheckChange() {
-    this.props.onTaskUpdate(this.props.index);
+    this.props.onTaskUpdate(this.props.taskId);
   }
   render() {
     let labelStyle = this.props.isCompleted ? "line-through" : "";
@@ -273,11 +293,10 @@ class ActionButton extends Component {
   }
 
   render() {
+    var isEnabled = !this.props.isEnabled? "disabled": "";
     return (
-      <button className="actionButton" onClick={this.updateActionHistory}>
-        {
-          //disabled={this.props.isEnabled}
-        }
+      <button className="actionButton" disabled={isEnabled} onClick={this.updateActionHistory} >
+       
         {this.props.children}
       </button>
     );
