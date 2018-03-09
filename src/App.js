@@ -7,6 +7,7 @@ import ActionState from "./ActionState";
 import List from "./List";
 import ActionButton from "./ActionButton";
 import TaskInput from "./TaskInput";
+import Container from "./Container";
 // #region App Component
 class App extends Component {
   render() {
@@ -40,25 +41,39 @@ class TaskBoard extends Component {
     this.undoActionHistory = this.undoActionHistory.bind(this);
     this.redoActionHistory = this.redoActionHistory.bind(this);
     this.setActionHistory = this.setActionHistory.bind(this);
+    this.addToActionHistory = this.addToActionHistory.bind(this);
   }
   setActionHistory(pendingTaskList, completedTaskList, actionHistory) {
     var currentActionIndex = this.state.currentActionIndex;
     if (currentActionIndex < actionHistory.length - 1) {
-      var actionIndexToBeRemoved = actionHistory.length - currentActionIndex-1;
+      var actionIndexToBeRemoved =
+        actionHistory.length - currentActionIndex - 1;
       actionHistory = update(actionHistory, {
-        $splice: [[currentActionIndex+1, actionIndexToBeRemoved]]
+        $splice: [[currentActionIndex + 1, actionIndexToBeRemoved]]
       });
     }
 
     actionHistory = update(actionHistory, {
       $push: [new ActionState(completedTaskList, pendingTaskList)]
     });
-   
+
     return actionHistory;
+  }
+  //Add to Action History
+  addToActionHistory(){
+    var completedTaskList = update({}, { $set: this.state.completedTaskList });   
+    var pendingTaskList = update({}, { $set: this.state.pendingTaskList });   
+    var actionHistory = update({}, { $set: this.state.actionHistory });
+    actionHistory = this.setActionHistory(pendingTaskList,completedTaskList,actionHistory);
+    this.setState({
+      pendingTaskList: pendingTaskList,
+      completedTaskList: [],
+      actionHistory: actionHistory,
+      currentActionIndex: actionHistory.length - 1
+    });
   }
   //Add task to pending task list
   addToPendingTask(taskName) {
-    console.log(this.state.actionHistory.length);
     var newTask = new TaskObject(taskName, false);
 
     var pendingTaskList = update(this.state.pendingTaskList, {
@@ -78,7 +93,6 @@ class TaskBoard extends Component {
       actionHistory: actionHistory,
       currentActionIndex: actionHistory.length - 1
     });
-   
   }
   //Add task to completed task list and remove from pending task list
   onTaskComplete(taskId) {
@@ -154,7 +168,6 @@ class TaskBoard extends Component {
         pendingTaskList: actionState.pendingTask,
         currentActionIndex: newIndex
       });
-   
     }
   }
   redoActionHistory() {
@@ -177,33 +190,29 @@ class TaskBoard extends Component {
       });
     }
   }
-  render() {
-    console.log(this.state.completedTaskList);
-    console.log(this.state.pendingTaskList);
-    console.log(this.state.actionHistory);
-    console.log(this.state.currentActionIndex);
+  render() {    
     var isRedoEnabled =
       this.state.currentActionIndex >= 0 &&
       this.state.currentActionIndex < this.state.actionHistory.length - 1;
     var isUndoEnabled = this.state.currentActionIndex > 0;
+    var isDelEnabled = this.state.completedTaskList.length > 0;
     return (
-      <div className="taskBoard">
+      <Container cssClass="taskBoard">
         <TaskInput addToPendingTask={this.addToPendingTask} />
-        <div>
+        <Container cssClass="actionButton">
           <ActionButton
             updateActionHistory={this.undoActionHistory}
             isEnabled={isUndoEnabled}
-          >
-            Undo
-          </ActionButton>
+            name="Undo"
+          />
           <ActionButton
             updateActionHistory={this.redoActionHistory}
             isEnabled={isRedoEnabled}
-          >
-            Redo
-          </ActionButton>
-        </div>
-        <div className="itemList">
+            name="Redo"
+          />
+          <ActionButton updateActionHistory={this.addToActionHistory} isEnabled={isDelEnabled} name="Del Checked"/>
+        </Container>
+        <Container cssClass="itemList">
           <List
             tasks={this.state.pendingTaskList}
             onTaskUpdate={this.onTaskComplete}
@@ -214,8 +223,8 @@ class TaskBoard extends Component {
             isCompleted={true}
             onTaskUpdate={this.onTaskPending}
           />
-        </div>
-      </div>
+        </Container>
+      </Container>
     );
   }
 }

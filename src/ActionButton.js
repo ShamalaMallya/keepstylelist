@@ -12,12 +12,11 @@ class ActionButton extends Component {
     render() {
       var isEnabled = !this.props.isEnabled ? "disabled" : "";
       return (
-        <button
-          className="actionButton"
+        <button         
           disabled={isEnabled}
           onClick={this.updateActionHistory}
         >
-          {this.props.children}
+          {this.props.name}
         </button>
       );
     }
